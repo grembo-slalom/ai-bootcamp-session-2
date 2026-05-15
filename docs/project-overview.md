@@ -64,6 +64,15 @@ The project uses npm workspaces to manage the monorepo structure. You can:
 - Run `npm run test:all` to run all tests (unit, integration, and E2E)
 - Work on individual packages by navigating to their directories and using their specific scripts
 
+## Configuration
+
+### Port Configuration
+
+Port configuration should use environment variables with sensible defaults.
+
+- **Backend**: `const PORT = process.env.PORT || 3030`
+- **Frontend**: React's default port is `3000`, but can be overridden by setting the `PORT` environment variable.
+
 ## Deployment
 
 General Guidelines, Code Style and Testing Practices will be covered in the bootcamp sessions.
