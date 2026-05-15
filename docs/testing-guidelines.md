@@ -16,7 +16,7 @@
 ## File Locations
 
 - **Backend** unit tests: `packages/backend/__tests__/`
-- **Backend** integration tests: `packages/backend/__tests__/`
+- **Backend** integration tests: `packages/backend/__tests__/integration/`
 - **Frontend** unit tests: `packages/frontend/__tests__/`
 - **E2E** tests: `tests/e2e/`
 
