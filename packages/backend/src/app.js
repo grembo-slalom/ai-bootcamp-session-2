@@ -12,13 +12,14 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Initialize in-memory SQLite database
-const db = new Database(':memory:');
+const db = new Database(process.env.DB_PATH || ':memory:');
 
 // Create tables
 db.exec(`
   CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    completed INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
 `);
@@ -92,6 +93,30 @@ app.delete('/api/items/:id', (req, res) => {
   } catch (error) {
     console.error('Error deleting item:', error);
     res.status(500).json({ error: 'Failed to delete item' });
+  }
+});
+
+app.patch('/api/items/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id || isNaN(parseInt(id))) {
+      return res.status(400).json({ error: 'Valid item ID is required' });
+    }
+
+    const existingItem = db.prepare('SELECT * FROM items WHERE id = ?').get(id);
+    if (!existingItem) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+
+    const newCompleted = existingItem.completed ? 0 : 1;
+    db.prepare('UPDATE items SET completed = ? WHERE id = ?').run(newCompleted, id);
+
+    const updatedItem = db.prepare('SELECT * FROM items WHERE id = ?').get(id);
+    res.json(updatedItem);
+  } catch (error) {
+    console.error('Error updating item:', error);
+    res.status(500).json({ error: 'Failed to update item' });
   }
 });
 

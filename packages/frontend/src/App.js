@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
+const API_BASE = '/api';
+
 function App() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +16,7 @@ function App() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/items');
+      const response = await fetch(`${API_BASE}/items`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -34,7 +36,7 @@ function App() {
     if (!newItem.trim()) return;
 
     try {
-      const response = await fetch('/api/items', {
+      const response = await fetch(`${API_BASE}/items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +59,7 @@ function App() {
 
   const handleDelete = async (itemId) => {
     try {
-      const response = await fetch(`/api/items/${itemId}`, {
+      const response = await fetch(`${API_BASE}/items/${itemId}`, {
         method: 'DELETE',
       });
 
@@ -70,6 +72,25 @@ function App() {
     } catch (err) {
       setError('Error deleting item: ' + err.message);
       console.error('Error deleting item:', err);
+    }
+  };
+
+  const handleToggle = async (itemId) => {
+    try {
+      const response = await fetch(`${API_BASE}/items/${itemId}`, {
+        method: 'PATCH',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update item');
+      }
+
+      const updated = await response.json();
+      setData(data.map(item => item.id === updated.id ? updated : item));
+      setError(null);
+    } catch (err) {
+      setError('Error updating item: ' + err.message);
+      console.error('Error updating item:', err);
     }
   };
 
@@ -102,9 +123,17 @@ function App() {
             <ul>
               {data.length > 0 ? (
                 data.map((item) => (
-                  <li key={item.id}>
-                    <span>{item.name}</span>
-                    <button 
+                  <li key={item.id} className={item.completed ? 'completed' : ''}>
+                    <label className="item-label">
+                      <input
+                        type="checkbox"
+                        checked={!!item.completed}
+                        onChange={() => handleToggle(item.id)}
+                        aria-label={`Mark "${item.name}" as ${item.completed ? 'incomplete' : 'complete'}`}
+                      />
+                      <span>{item.name}</span>
+                    </label>
+                    <button
                       onClick={() => handleDelete(item.id)}
                       className="delete-btn"
                       type="button"
