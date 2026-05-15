@@ -9,6 +9,11 @@ test.describe('Add TODO item', () => {
     await todoPage.goto();
   });
 
+  test.afterEach(async () => {
+    await todoPage.cleanupItem('Buy groceries');
+    await todoPage.cleanupItem('Read a book');
+  });
+
   test('should add a new item and display it in the list', async () => {
     await todoPage.addItem('Buy groceries');
     const items = await todoPage.getItems();

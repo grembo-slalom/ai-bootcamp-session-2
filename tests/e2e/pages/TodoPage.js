@@ -25,9 +25,23 @@ class TodoPage {
     await expect(this.page.getByText(name)).not.toBeVisible();
   }
 
+  async cleanupItem(name) {
+    const locator = this.page.locator('li').filter({ hasText: name });
+    let count = await locator.count();
+    while (count > 0) {
+      await locator.first().getByRole('button', { name: 'Delete' }).click();
+      await expect(locator).toHaveCount(count - 1);
+      count--;
+    }
+  }
+
   async toggleItem(name) {
     const item = this.page.locator('li').filter({ hasText: name });
-    await item.getByRole('checkbox').click();
+    const checkbox = item.getByRole('checkbox');
+    const wasChecked = await checkbox.isChecked();
+    await checkbox.click();
+    // Wait for the API response and React re-render before returning
+    await expect(checkbox).toBeChecked({ checked: !wasChecked });
   }
 
   async isItemCompleted(name) {

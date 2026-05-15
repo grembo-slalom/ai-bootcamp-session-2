@@ -10,6 +10,10 @@ test.describe('Complete TODO item', () => {
     await todoPage.addItem('Task to complete');
   });
 
+  test.afterEach(async () => {
+    await todoPage.cleanupItem('Task to complete');
+  });
+
   test('should mark an item as complete when checkbox is clicked', async () => {
     await todoPage.toggleItem('Task to complete');
     expect(await todoPage.isItemCompleted('Task to complete')).toBe(true);
